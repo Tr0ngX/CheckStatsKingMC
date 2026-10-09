@@ -208,11 +208,12 @@ namespace RedstoneOrderNotifier
                 // Thư mục dữ liệu độc lập cho WebView2 tránh xung đột cache
                 var userDataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "KingMCMonitor_WebView2");
                 // Cờ tham số Chromium chuẩn công nghiệp:
-                // 1. Chống background throttling & occlusion (nguyên nhân khiến WebView2 đóng băng / màn hình đen sau vài giây khi cửa sổ bị overlap hoặc background)
-                // 2. Chế độ phần mềm software rasterizer & tắt hardware acceleration gây crash Direct3D context
+                // Khắc phục triệt để lỗi crash DelayLoad SETUPAPI.dll (Win32 Error 1114) trong Crashpad minidump,
+                // tắt triệt để sandbox cách ly xung đột kernel hook, tắt device enumeration và GPU Direct3D context crash.
                 var options = new CoreWebView2EnvironmentOptions(
+                    "--no-sandbox --disable-features=RendererAppContainer,CalculateNativeWinOcclusion,SpareRendererForSitePerProcess,GpuProcessHighPriority,WidgetLayering " +
+                    "--disable-device-discovery-notifications --disable-usb-keyboard-detect " +
                     "--disable-gpu --disable-gpu-compositing --disable-gpu-rasterization --disable-gpu-sandbox --disable-software-rasterizer=false " +
-                    "--disable-features=CalculateNativeWinOcclusion,SpareRendererForSitePerProcess,GpuProcessHighPriority,WidgetLayering " +
                     "--disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-renderer-backgrounding " +
                     "--allow-file-access-from-files"
                 );

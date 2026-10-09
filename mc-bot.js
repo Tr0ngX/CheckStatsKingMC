@@ -1256,6 +1256,9 @@ class PersistentBot extends EventEmitter {
       // Xác định chế độ lọc ID đặc biệt
       const isBoneQuery = (normalizedTarget === 'bone' || normalizedTarget === 'xuong');
       const isBoneBlockQuery = (normalizedTarget === 'boneblock' || normalizedTarget === 'khoixuong');
+      const isKelpQuery = (normalizedTarget === 'kelp' || normalizedTarget === 'taobien');
+      const isDriedKelpQuery = (normalizedTarget === 'driedkelp' || normalizedTarget === 'taobiensay' || normalizedTarget === 'taosay');
+      const isDriedKelpBlockQuery = (normalizedTarget === 'driedkelpblock' || normalizedTarget === 'khoitaosay' || normalizedTarget === 'khoitaobiensay');
 
       const orders = [];
       const MAX_PAGES = 10;
@@ -1278,11 +1281,17 @@ class PersistentBot extends EventEmitter {
           const nameLower = (item.name || '').toLowerCase();
           if (nameLower.includes('pane') || nameLower === 'air' || nameLower === 'barrier') continue;
 
-          // Lọc chính xác item ID cho bone và bone_block
+          // Lọc chính xác item ID (CHỈ quét đúng item được yêu cầu)
           if (isBoneQuery) {
             if (nameLower !== 'bone') continue;
           } else if (isBoneBlockQuery) {
             if (nameLower !== 'bone_block') continue;
+          } else if (isKelpQuery) {
+            if (nameLower !== 'kelp') continue;
+          } else if (isDriedKelpQuery) {
+            if (nameLower !== 'dried_kelp') continue;
+          } else if (isDriedKelpBlockQuery) {
+            if (nameLower !== 'dried_kelp_block') continue;
           }
 
           let loreArray = [];

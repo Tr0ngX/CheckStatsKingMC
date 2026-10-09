@@ -268,6 +268,7 @@ function checkIpLimit(text) {
          (t.includes('vuot qua gioi han') && t.includes('dang ky')) ||
          (t.includes('giới hạn') && t.includes('đăng ký') && t.includes('tài khoản')) ||
          (t.includes('gioi han') && t.includes('dang ky') && t.includes('tai khoan')) ||
+         (t.includes('1 địa chỉ ip chỉ được chơi') || t.includes('1 dia chi ip chi duoc choi') || (t.includes('địa chỉ ip') && t.includes('cùng lúc'))) ||
          t.includes('your ip is banned') ||
          t.includes('địa chỉ ip của bạn đã bị') ||
          t.includes('dia chi ip cua ban da bi') ||

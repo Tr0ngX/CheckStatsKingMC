@@ -26,7 +26,7 @@ namespace RedstoneOrderNotifier
 
     public class AppConfig
     {
-        public string ServerUrl { get; set; } = "http://localhost:3000";
+        public string ServerUrl { get; set; } = "https://kingmc-master.onrender.com";
         public int PlayerRecheckMinutes { get; set; } = 10;
         public double RedstoneBlockThreshold { get; set; } = 50000.0;
         public double RedstoneDustThreshold { get; set; } = 5600.0;

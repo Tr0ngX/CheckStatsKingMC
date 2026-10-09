@@ -823,6 +823,22 @@
       }
     }
 
+    if (window.chrome && window.chrome.webview) {
+      window.chrome.webview.addEventListener('message', function(event) {
+        try {
+          const data = event.data;
+          if (!data) return;
+          if (data.type === 'sync') {
+            window.updateFrontendData(data.payload);
+          } else if (data.type === 'log') {
+            window.appendLog(data.text);
+          }
+        } catch (err) {
+          console.warn('Error handling webview message:', err);
+        }
+      });
+    }
+
     const serverUrlInput = document.getElementById('serverUrlInput');
     if (serverUrlInput) {
       serverUrlInput.addEventListener('change', (e) => {

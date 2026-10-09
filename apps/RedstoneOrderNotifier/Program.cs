@@ -266,13 +266,10 @@ namespace RedstoneOrderNotifier
                 // Tự động hồi phục khi GPU process hoặc Render process bị sập
                 _webView.CoreWebView2.ProcessFailed += (s, e) =>
                 {
-                    AppendLog($"⚠️ Phát hiện WebView2 ProcessFailed ({e.ProcessFailedKind} - {e.Reason}). Đang tự động khôi phục giao diện...");
+                    System.Diagnostics.Debug.WriteLine($"[WebView2 ProcessFailed] {e.ProcessFailedKind} - {e.Reason}");
                     try
                     {
-                        if (File.Exists(uiPath))
-                        {
-                            _webView.CoreWebView2.Navigate(new Uri(uiPath).AbsoluteUri);
-                        }
+                        _webView.Reload();
                     }
                     catch { }
                 };
@@ -365,27 +362,32 @@ namespace RedstoneOrderNotifier
 
             if (_webView?.CoreWebView2 == null) return;
 
-            var payload = new
+            try
             {
-                serverUrl = _config.ServerUrl,
-                actionText = _currentActionText,
-                players = _players.ToDictionary(k => k.Key, v => new
+                var payload = new
                 {
-                    name = v.Value.Name,
-                    balance = v.Value.Balance,
-                    numericBalance = v.Value.NumericBalance,
-                    isOnline = v.Value.IsOnline,
-                    ping = v.Value.Ping,
-                    world = v.Value.World,
-                    avatarUrl = v.Value.AvatarUrl,
-                    lastChecked = v.Value.LastChecked?.ToString("o"),
-                    history = v.Value.History.Select(h => new { time = h.Time.ToString("o"), value = h.Value }).ToList()
-                }),
-                orders = _latestOrders
-            };
+                    serverUrl = _config.ServerUrl,
+                    actionText = _currentActionText,
+                    players = _players.ToDictionary(k => k.Key, v => new
+                    {
+                        name = v.Value.Name,
+                        balance = v.Value.Balance,
+                        numericBalance = v.Value.NumericBalance,
+                        isOnline = v.Value.IsOnline,
+                        ping = v.Value.Ping,
+                        world = v.Value.World,
+                        avatarUrl = v.Value.AvatarUrl,
+                        lastChecked = v.Value.LastChecked?.ToString("o"),
+                        history = v.Value.History.Select(h => new { time = h.Time.ToString("o"), value = h.Value }).ToList()
+                    }),
+                    orders = _latestOrders
+                };
 
-            var json = JsonSerializer.Serialize(payload);
-            _ = _webView.CoreWebView2.ExecuteScriptAsync($"window.updateFrontendData({json});");
+                var msgObj = new { type = "sync", payload };
+                var json = JsonSerializer.Serialize(msgObj);
+                _webView.CoreWebView2.PostWebMessageAsJson(json);
+            }
+            catch { }
         }
 
         private void AppendLog(string msg)
@@ -397,8 +399,14 @@ namespace RedstoneOrderNotifier
             }
 
             if (_webView?.CoreWebView2 == null) return;
-            var escaped = JsonSerializer.Serialize(msg);
-            _ = _webView.CoreWebView2.ExecuteScriptAsync($"window.appendLog({escaped});");
+
+            try
+            {
+                var msgObj = new { type = "log", text = msg };
+                var json = JsonSerializer.Serialize(msgObj);
+                _webView.CoreWebView2.PostWebMessageAsJson(json);
+            }
+            catch { }
         }
 
         /// <summary>

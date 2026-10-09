@@ -23,12 +23,18 @@
 const STORAGE_KEY = 'RENDER_WORKER_URLS';
 const MASTER_KEY = 'RENDER_MASTER_URL';
 
+const DEFAULT_MASTER_URL = 'https://kingmc-master.onrender.com';
+const DEFAULT_WORKER_URLS = [
+  'https://checkstatskingmc-t2c4.onrender.com'
+];
+
 /**
- * Lấy URL Master Bot đang lưu trữ trong Script Properties
+ * Lấy URL Master Bot đang lưu trữ trong Script Properties (fallback về DEFAULT_MASTER_URL)
  */
 function getMasterUrl() {
   const props = PropertiesService.getScriptProperties();
-  return (props.getProperty(MASTER_KEY) || '').trim();
+  const val = (props.getProperty(MASTER_KEY) || '').trim();
+  return val || DEFAULT_MASTER_URL;
 }
 
 /**
@@ -45,16 +51,18 @@ function saveMasterUrl(url) {
 }
 
 /**
- * Lấy danh sách URL Worker đang lưu trữ trong Script Properties
+ * Lấy danh sách URL Worker đang lưu trữ trong Script Properties (fallback về DEFAULT_WORKER_URLS)
  */
 function getWorkerUrls() {
   const props = PropertiesService.getScriptProperties();
   const raw = props.getProperty(STORAGE_KEY);
-  if (!raw) return [];
+  if (!raw) return DEFAULT_WORKER_URLS;
   try {
-    return JSON.parse(raw);
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    return DEFAULT_WORKER_URLS;
   } catch (e) {
-    return [];
+    return DEFAULT_WORKER_URLS;
   }
 }
 

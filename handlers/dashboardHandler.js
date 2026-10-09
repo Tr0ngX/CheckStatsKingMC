@@ -203,8 +203,13 @@ async function handleDashboardRequest(req, res, context) {
 
       let balStr = 'N/A';
       if (resBal) {
-        const rawBal = resBal.balance || resBal;
-        balStr = typeof rawBal === 'object' && rawBal.balance ? rawBal.balance : String(rawBal || 'N/A');
+        if (typeof resBal === 'object' && resBal.balance !== undefined) {
+          balStr = typeof resBal.balance === 'object' ? JSON.stringify(resBal.balance) : String(resBal.balance);
+        } else if (typeof resBal === 'object' && resBal.error) {
+          balStr = 'N/A';
+        } else {
+          balStr = String(resBal || 'N/A');
+        }
         if (balStr.includes('$')) {
           balStr = balStr.substring(balStr.indexOf('$')).trim();
         }

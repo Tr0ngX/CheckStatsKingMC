@@ -207,18 +207,24 @@ namespace RedstoneOrderNotifier
             {
                 // Thư mục dữ liệu độc lập cho WebView2 tránh xung đột cache
                 var userDataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "KingMCMonitor_WebView2");
-                // Cờ tham số Chromium chuẩn công nghiệp:
-                // Khắc phục triệt để lỗi crash DelayLoad SETUPAPI.dll (Win32 Error 1114) trong Crashpad minidump,
-                // tắt triệt để sandbox cách ly xung đột kernel hook, tắt device enumeration và GPU Direct3D context crash.
+                
+                // Cờ tham số Chromium chuẩn tương thích 100% với WebView2 (Đã gỡ --disable-gpu-compositing để khắc phục triệt để màn hình đen)
                 var options = new CoreWebView2EnvironmentOptions(
-                    "--no-sandbox --disable-features=RendererAppContainer,CalculateNativeWinOcclusion,SpareRendererForSitePerProcess,GpuProcessHighPriority,WidgetLayering " +
-                    "--disable-device-discovery-notifications --disable-usb-keyboard-detect " +
-                    "--disable-gpu --disable-gpu-compositing --disable-gpu-rasterization --disable-gpu-sandbox --disable-software-rasterizer=false " +
-                    "--disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-renderer-backgrounding " +
-                    "--allow-file-access-from-files"
+                    "--allow-file-access-from-files --disable-features=CalculateNativeWinOcclusion,SpareRendererForSitePerProcess --disable-background-timer-throttling --disable-backgrounding-occluded-windows"
                 );
 
-                var env = await CoreWebView2Environment.CreateAsync(null, userDataFolder, options);
+                CoreWebView2Environment env;
+                try
+                {
+                    env = await CoreWebView2Environment.CreateAsync(null, userDataFolder, options);
+                }
+                catch
+                {
+                    // Nếu folderUserData cũ bị khóa hoặc hư hỏng cache do lỗi trước đó, tự động dọn dẹp và khởi tạo lại
+                    try { if (Directory.Exists(userDataFolder)) Directory.Delete(userDataFolder, true); } catch { }
+                    env = await CoreWebView2Environment.CreateAsync(null, userDataFolder, options);
+                }
+
                 await _webView.EnsureCoreWebView2Async(env);
 
                 // Thiết lập màu nền mặc định tối cùng màu ứng dụng

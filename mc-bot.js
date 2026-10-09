@@ -936,15 +936,34 @@ class PersistentBot extends EventEmitter {
       }
 
       if (!menuWindow) {
-        console.error(`[MC-Bot] ❌ Không thể mở /menu sau 5 lần thử!`);
-        return;
-      }
+        console.error(`[MC-Bot] ❌ Không thể mở /menu sau 5 lần thử! Thử chuyển thẳng vào sub-server...`);
+        this.bot.chat('/kingsmp');
+      } else {
+        console.log(`[MC-Bot] 🎯 Đã mở GUI menu. Đang tìm slot KingSMP...`);
+        let targetSlot = 24; // Fallback mặc định là slot 24
 
-      console.log(`[MC-Bot] 🎯 Đã mở GUI menu. Đang click slot 24 (KingSMP)...`);
-      try {
-        this.bot.clickWindow(24, 0, 0);
-      } catch (e) {
-        console.error(`[MC-Bot] Lỗi click menu: ${e.message}`);
+        // Dò tìm thông minh theo tên vật phẩm / lore trong menu
+        if (menuWindow.slots) {
+          const maxSlots = Math.min(menuWindow.inventoryStart || 45, menuWindow.slots.length);
+          for (let s = 0; s < maxSlots; s++) {
+            const item = menuWindow.slots[s];
+            if (!item) continue;
+            const dName = (item.displayName || item.customName || '').toLowerCase();
+            const rawName = (item.name || '').toLowerCase();
+            if (dName.includes('kingsmp') || dName.includes('smp') || dName.includes('sinh tồn') || dName.includes('survival') || rawName.includes('grass') || rawName.includes('sword')) {
+              targetSlot = s;
+              console.log(`[MC-Bot] 🔍 Tìm thấy slot KingSMP: [Slot ${s}] (${item.displayName || item.name})`);
+              break;
+            }
+          }
+        }
+
+        try {
+          this.bot.clickWindow(targetSlot, 0, 0);
+        } catch (e) {
+          console.error(`[MC-Bot] Lỗi click menu slot ${targetSlot}: ${e.message}`);
+          this.bot.chat('/kingsmp');
+        }
       }
 
       const delay3 = setTimeout(() => {
@@ -1092,13 +1111,26 @@ class PersistentBot extends EventEmitter {
     
     const rtpDelay = setTimeout(() => {
       if (!this.bot || !this.isBotOnline) return;
-      console.log(`[MC-Bot] Đang click slot 15 trong GUI /rtp...`);
+      console.log(`[MC-Bot] Đang kiểm tra GUI /rtp...`);
       try {
         const currentWindow = this.bot.currentWindow;
-        if (currentWindow) {
-          this.bot.clickWindow(15, 0, 0);
+        if (currentWindow && currentWindow.slots) {
+          let targetSlot = 15;
+          const maxSlots = Math.min(currentWindow.inventoryStart || 45, currentWindow.slots.length);
+          for (let s = 0; s < maxSlots; s++) {
+            const item = currentWindow.slots[s];
+            if (!item) continue;
+            const dName = (item.displayName || item.customName || '').toLowerCase();
+            const rawName = (item.name || '').toLowerCase();
+            if (dName.includes('rtp') || dName.includes('teleport') || dName.includes('ngẫu nhiên') || rawName.includes('compass') || rawName.includes('ender_pearl')) {
+              targetSlot = s;
+              console.log(`[MC-Bot] 🔍 Tìm thấy slot RTP: [Slot ${s}] (${item.displayName || item.name})`);
+              break;
+            }
+          }
+          this.bot.clickWindow(targetSlot, 0, 0);
         } else {
-          console.log(`[MC-Bot] Không có window /rtp nào đang mở để click!`);
+          console.log(`[MC-Bot] Không có window /rtp nào đang mở (có thể đã dịch chuyển tức thì).`);
         }
       } catch (e) {
         console.error(`[MC-Bot] Lỗi click rtp: ${e.message}`);

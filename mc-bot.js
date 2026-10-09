@@ -899,6 +899,14 @@ class PersistentBot extends EventEmitter {
       delay = 60000;
     }
 
+    // Tự động làm mới Username & Password ngẫu nhiên mới mỗi lần reconnect
+    // để tránh bị kẹt session cũ, bị server nhớ username bị kick hoặc chưa đăng ký
+    const freshUser = generateRandomUsername(10);
+    const freshPass = generateRandomUsername(10);
+    console.log(`[MC-Bot] 🔄 Tự động reset sang danh tính mới: [${freshUser}] trước khi kết nối lại.`);
+    this.credentials.username = freshUser;
+    this.credentials.password = freshPass;
+
     this.reconnectTimeout = setTimeout(() => {
       this.connect();
     }, delay);

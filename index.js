@@ -291,8 +291,10 @@ const server = http.createServer(async (req, res) => {
   // Endpoint API restart dành cho Worker Node từ xa
   if (url.pathname === '/api/restart' && req.method === 'POST') {
     if (WORKER_SECRET) {
-      const authHeader = req.headers['x-worker-secret'];
-      if (authHeader !== WORKER_SECRET) {
+      const authHeader = req.headers['x-worker-secret'] || '';
+      const authBearer = (req.headers['authorization'] || '').replace(/^Bearer\s+/i, '');
+      const querySecret = url.searchParams.get('secret') || '';
+      if (authHeader !== WORKER_SECRET && authBearer !== WORKER_SECRET && querySecret !== WORKER_SECRET) {
         res.writeHead(401, { 'Content-Type': 'application/json' });
         return res.end(JSON.stringify({ success: false, error: 'Unauthorized: Sai WORKER_SECRET' }));
       }

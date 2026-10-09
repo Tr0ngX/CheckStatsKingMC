@@ -185,7 +185,7 @@ namespace RedstoneOrderNotifier
             _webView = new WebView2 { Dock = DockStyle.Fill };
             Controls.Add(_webView);
 
-            InitializeWebViewAsync();
+            Shown += async (s, e) => await InitializeWebViewAsync();
 
             _workerLoopTimer = new System.Windows.Forms.Timer { Interval = 2500 };
             _workerLoopTimer.Tick += async (s, e) => await MasterCoordinatorTickAsync();
@@ -201,10 +201,13 @@ namespace RedstoneOrderNotifier
             };
         }
 
-        private async void InitializeWebViewAsync()
+        private async Task InitializeWebViewAsync()
         {
             try
             {
+                if (!IsHandleCreated) CreateHandle();
+                if (!_webView.IsHandleCreated) _webView.CreateControl();
+
                 // Thư mục dữ liệu độc lập cho WebView2 tránh xung đột cache
                 var userDataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "KingMCMonitor_WebView2");
                 
@@ -235,30 +238,29 @@ namespace RedstoneOrderNotifier
                 _webView.CoreWebView2.Settings.AreDevToolsEnabled = true;
                 _webView.CoreWebView2.Settings.IsSwipeNavigationEnabled = false;
 
-                // Ánh xạ thư mục UI sang Virtual Host Domain ảo (app.kingmc.local)
-                // Điều này giúp trình duyệt chạy ở chế độ HTTP an toàn chuẩn Web Security,
-                // nạp 100% hình ảnh icon, CSS, script và canvas mà không bị trình duyệt chặn file:// protocol hoặc GPU context loss
                 var uiFolder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "UI");
+                var uiPath = Path.Combine(uiFolder, "index.html");
+
                 if (Directory.Exists(uiFolder))
                 {
-                    _webView.CoreWebView2.SetVirtualHostNameToFolderMapping(
-                        "app.kingmc.local",
-                        uiFolder,
-                        CoreWebView2HostResourceAccessKind.Allow
-                    );
-                    _webView.CoreWebView2.Navigate("https://app.kingmc.local/index.html");
+                    try
+                    {
+                        _webView.CoreWebView2.SetVirtualHostNameToFolderMapping(
+                            "app.kingmc.local",
+                            uiFolder,
+                            CoreWebView2HostResourceAccessKind.Allow
+                        );
+                    }
+                    catch { }
+                }
+
+                if (File.Exists(uiPath))
+                {
+                    _webView.CoreWebView2.Navigate(new Uri(uiPath).AbsoluteUri);
                 }
                 else
                 {
-                    var uiPath = Path.Combine(uiFolder, "index.html");
-                    if (File.Exists(uiPath))
-                    {
-                        _webView.CoreWebView2.Navigate(new Uri(uiPath).AbsoluteUri);
-                    }
-                    else
-                    {
-                        _webView.CoreWebView2.NavigateToString("<h2 style='color:white;font-family:sans-serif;'>Đang chuẩn bị giao diện...</h2>");
-                    }
+                    _webView.CoreWebView2.NavigateToString("<h2 style='color:white;font-family:sans-serif;padding:20px;'>⚠️ Không tìm thấy tệp giao diện UI/index.html</h2>");
                 }
 
                 // Tự động hồi phục khi GPU process hoặc Render process bị sập
@@ -267,20 +269,27 @@ namespace RedstoneOrderNotifier
                     AppendLog($"⚠️ Phát hiện WebView2 ProcessFailed ({e.ProcessFailedKind} - {e.Reason}). Đang tự động khôi phục giao diện...");
                     try
                     {
-                        _webView.CoreWebView2.Navigate("https://app.kingmc.local/index.html");
+                        if (File.Exists(uiPath))
+                        {
+                            _webView.CoreWebView2.Navigate(new Uri(uiPath).AbsoluteUri);
+                        }
                     }
                     catch { }
                 };
 
                 _webView.NavigationCompleted += (s, e) =>
                 {
+                    if (!e.IsSuccess)
+                    {
+                        AppendLog($"⚠️ Lỗi nạp WebView2 ({e.WebErrorStatus})...");
+                    }
                     SyncDataToFrontend();
                     _workerLoopTimer.Start();
                 };
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi khởi tạo giao diện WebView2: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Lỗi khởi tạo giao diện WebView2: " + ex.Message + "\n\nNếu máy tính chưa có Evergreen WebView2 Runtime, vui lòng cài đặt lại Microsoft Edge WebView2 Runtime.", "Lỗi WebView2", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

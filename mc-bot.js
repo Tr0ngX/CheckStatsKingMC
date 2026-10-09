@@ -315,7 +315,10 @@ class PersistentBot extends EventEmitter {
       host: host,
       port: this.port,
       username: this.credentials.username,
-      version: '1.20.1'
+      version: '1.20.1',
+      hideErrors: true,
+      viewDistance: 'tiny',
+      checkTimeoutInterval: 60000
     };
 
     if (this.credentials.authType === 'microsoft') {

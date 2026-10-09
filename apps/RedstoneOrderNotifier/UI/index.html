@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KingMC Supreme Intelligence Monitor</title>
+  
+  <!-- Premium Fonts: Plus Jakarta Sans & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Chart.js Offline Local with CDN Fallback -->
+  <script src="libs/chart.umd.min.js"></script>
+  <script>
+    if (typeof Chart === 'undefined') {
+      document.write('<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"><\/script>');
+    }
+  </script>
+
+  <!-- Phosphor Icons with offline fallback -->
+  <script>
+    window.addEventListener('error', function(e) {
+      console.warn('Caught resource/script error:', e.message || e);
+    });
+  </script>
+  <script src="libs/phosphor.js"></script>
+  <script src="https://unpkg.com/@phosphor-icons/web" async></script>
+
+  <style>
+    /* ==========================================================================
+       HIGH-END DESIGN TOKENS (Taste-Skill & Impeccable Agency Benchmark)
+       ========================================================================== */
+    :root {
+      --bg-base: #02040a;
+      --bg-radial: radial-gradient(circle at 50% 0%, rgba(30, 58, 138, 0.15) 0%, rgba(2, 4, 10, 0.98) 75%);
+      --surface-bezel-outer: rgba(255, 255, 255, 0.04);
+      --surface-bezel-inner: rgba(13, 18, 30, 0.85);
+      --surface-glass: rgba(18, 24, 38, 0.65);
+      
+      --hairline-border: rgba(255, 255, 255, 0.08);
+      --hairline-border-focus: rgba(96, 165, 250, 0.45);
+      --inner-specular: inset 0 1px 1px 0 rgba(255, 255, 255, 0.12);
+      --card-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7);
+
+      --primary-accent: #3b82f6;
+      --primary-glow: 0 0 24px rgba(59, 130, 246, 0.35);
+      --emerald-accent: #10b981;
+      --emerald-glow: 0 0 16px rgba(16, 185, 129, 0.3);
+      --rose-accent: #f43f5e;
+      --amber-accent: #f59e0b;
+      
+      --text-hero: #ffffff;
+      --text-sub: #94a3b8;
+      --text-dim: #64748b;
+      
+      --font-display: 'Plus Jakarta Sans', -apple-system, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      
+      --spring-physics: cubic-bezier(0.32, 0.72, 0, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      font-family: var(--font-display);
+      background: var(--bg-base);
+      background-image: var(--bg-radial);
+      color: var(--text-hero);
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Noise Texture Overlay for Physical Depth */
+    .film-grain {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.025;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+      z-index: 999;
+    }
+
+    /* ==========================================================================
+       TOP DETACHED FLOATING ISLAND HEADER
+       ========================================================================== */
+    .header-wrapper {
+      padding: 16px 24px 8px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      z-index: 50;
+    }
+
+    .brand-island {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: var(--surface-bezel-outer);
+      border: 1px solid var(--hairline-border);
+      padding: 6px 16px 6px 8px;
+      border-radius: 9999px;
+      backdrop-filter: blur(24px);
+      box-shadow: var(--card-shadow);
+    }
+
+    .brand-icon-box {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #ef4444, #991b1b);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 16px rgba(239, 68, 68, 0.45);
+    }
+
+    .brand-icon-box img {
+      width: 22px;
+      height: 22px;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));
+    }
+
+    .brand-meta h1 {
+      font-size: 13.5px;
+      font-weight: 700;
+      letter-spacing: -0.2px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .eyebrow-pill {
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 2px 6px;
+      border-radius: 9999px;
+      background: rgba(59, 130, 246, 0.15);
+      border: 1px solid rgba(59, 130, 246, 0.35);
+      color: #93c5fd;
+    }
+
+    /* Center Status Island */
+    .center-island {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--surface-bezel-outer);
+      border: 1px solid var(--hairline-border);
+      padding: 6px 14px;
+      border-radius: 9999px;
+      backdrop-filter: blur(24px);
+    }
+
+    .url-field {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--hairline-border);
+      padding: 5px 12px;
+      border-radius: 9999px;
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      color: #93c5fd;
+    }
+
+    .url-field input {
+      background: transparent;
+      border: none;
+      outline: none;
+      color: inherit;
+      font-family: inherit;
+      font-size: 11.5px;
+      width: 200px;
+    }
+
+    .status-orb {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: #34d399;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+    }
+
+    .orb-dot {
+      width: 6px;
+      height: 6px;
+      background: #10b981;
+      border-radius: 50%;
+      box-shadow: 0 0 8px #10b981;
+      animation: pulse-orb 2.4s infinite var(--spring-physics);
+    }
+
+    @keyframes pulse-orb {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.8); }
+    }
+
+    .action-display {
+      font-size: 11.5px;
+      color: var(--text-sub);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .action-display strong {
+      color: #60a5fa;
+      font-weight: 600;
+    }
+
+    /* Button-in-Button Island CTA (High-End Rule 4B) */
+    .island-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 8px 6px 16px;
+      border-radius: 9999px;
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.9), rgba(29, 78, 216, 0.95));
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: white;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: var(--primary-glow);
+      transition: all 0.4s var(--spring-physics);
+    }
+
+    .island-btn:hover {
+      transform: translateY(-1px) scale(1.02);
+      box-shadow: 0 0 28px rgba(59, 130, 246, 0.55);
+    }
+
+    .island-btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn-inner-orb {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.3s var(--spring-physics);
+    }
+
+    .island-btn:hover .btn-inner-orb {
+      transform: scale(1.15) rotate(15deg);
+    }
+
+    /* ==========================================================================
+       MAIN WORKSPACE (Asymmetrical Bento & Double-Bezel Architecture)
+       ========================================================================== */
+    .app-viewport {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+      padding: 8px 24px 20px 24px;
+      gap: 18px;
+    }
+
+    /* Double-Bezel Sidebar (Rule 4A) */
+    .sidebar-shell {
+      width: 240px;
+      background: var(--surface-bezel-outer);
+      border: 1px solid var(--hairline-border);
+      border-radius: 24px;
+      padding: 6px;
+      box-shadow: var(--card-shadow);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar-core {
+      background: var(--surface-bezel-inner);
+      border-radius: 18px;
+      box-shadow: var(--inner-specular);
+      flex: 1;
+      padding: 16px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .section-eyebrow {
+      font-size: 9.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-dim);
+      padding: 10px 12px 6px 12px;
+    }
+
+    .nav-pill {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      border-radius: 12px;
+      font-size: 12.5px;
+      font-weight: 500;
+      color: var(--text-sub);
+      cursor: pointer;
+      transition: all 0.25s var(--spring-physics);
+      border: 1px solid transparent;
+    }
+
+    .nav-pill:hover {
+      color: white;
+      background: rgba(255, 255, 255, 0.04);
+      transform: translateX(3px);
+    }
+
+    .nav-pill.active {
+      color: white;
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.22), rgba(37, 99, 235, 0.12));
+      border: 1px solid rgba(59, 130, 246, 0.35);
+      box-shadow: 0 4px 16px rgba(59, 130, 246, 0.15);
+    }
+
+    .nav-pill img {
+      width: 17px;
+      height: 17px;
+      object-fit: contain;
+    }
+
+    /* Double-Bezel Content Stage */
+    .stage-shell {
+      flex: 1;
+      background: var(--surface-bezel-outer);
+      border: 1px solid var(--hairline-border);
+      border-radius: 28px;
+      padding: 6px;
+      box-shadow: var(--card-shadow);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .stage-core {
+      background: var(--surface-bezel-inner);
+      border-radius: 22px;
+      box-shadow: var(--inner-specular);
+      flex: 1;
+      padding: 24px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* ==========================================================================
+       CARDS & BENTO ARCHITECTURE
+       ========================================================================== */
+    .bento-card {
+      background: rgba(17, 24, 39, 0.5);
+      border: 1px solid var(--hairline-border);
+      border-radius: 18px;
+      box-shadow: var(--inner-specular);
+      padding: 20px;
+      transition: all 0.35s var(--spring-physics);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .bento-card:hover {
+      border-color: rgba(255, 255, 255, 0.15);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5), var(--inner-specular);
+    }
+
+    .bento-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+
+    .bento-title {
+      font-size: 14.5px;
+      font-weight: 700;
+      color: var(--text-hero);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Player Cards Grid */
+    .players-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+    }
+
+    .player-card-shell {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--hairline-border);
+      border-radius: 18px;
+      padding: 4px;
+      transition: all 0.35s var(--spring-physics);
+    }
+
+    .player-card-shell:hover {
+      border-color: var(--border-accent);
+      transform: translateY(-3px);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.5);
+    }
+
+    .player-card-inner {
+      background: rgba(13, 18, 30, 0.7);
+      border-radius: 14px;
+      box-shadow: var(--inner-specular);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .player-avatar-box {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--hairline-border);
+      padding: 3px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+    }
+
+    .player-avatar-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .badge-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 8px;
+      border-radius: 9999px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+
+    .badge-chip.online {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      color: #34d399;
+    }
+
+    .badge-chip.offline {
+      background: rgba(244, 63, 94, 0.15);
+      border: 1px solid rgba(244, 63, 94, 0.35);
+      color: #fb7185;
+    }
+
+    .balance-headline {
+      font-family: var(--font-mono);
+      font-size: 19px;
+      font-weight: 700;
+      color: #38bdf8;
+      letter-spacing: -0.5px;
+      text-shadow: 0 0 16px rgba(56, 189, 248, 0.25);
+    }
+
+    /* Sub-tabs item order selector */
+    .item-carousel-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 4px 2px 10px 2px;
+    }
+
+    .item-pill-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 14px;
+      border-radius: 9999px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--hairline-border);
+      color: var(--text-sub);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.25s var(--spring-physics);
+      white-space: nowrap;
+    }
+
+    .item-pill-btn:hover {
+      color: white;
+      background: rgba(255, 255, 255, 0.07);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .item-pill-btn.active {
+      color: white;
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.25), rgba(37, 99, 235, 0.15));
+      border-color: rgba(59, 130, 246, 0.5);
+      box-shadow: 0 0 16px rgba(59, 130, 246, 0.25);
+    }
+
+    .item-pill-btn img {
+      width: 19px;
+      height: 19px;
+      object-fit: contain;
+    }
+
+    /* Table Luxe */
+    .table-shell {
+      border: 1px solid var(--hairline-border);
+      border-radius: 14px;
+      overflow: hidden;
+      background: rgba(0, 0, 0, 0.25);
+    }
+
+    table.luxe-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 12.5px;
+    }
+
+    table.luxe-table th {
+      background: rgba(15, 23, 42, 0.85);
+      padding: 12px 16px;
+      color: var(--text-dim);
+      font-size: 10.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      border-bottom: 1px solid var(--hairline-border);
+    }
+
+    table.luxe-table td {
+      padding: 12px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      color: var(--text-hero);
+    }
+
+    table.luxe-table tr:hover td {
+      background: rgba(255, 255, 255, 0.025);
+    }
+
+    .price-text {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      color: #34d399;
+    }
+
+    .bar-outer {
+      flex: 1;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 9999px;
+      overflow: hidden;
+      min-width: 90px;
+    }
+
+    .bar-inner {
+      height: 100%;
+      background: linear-gradient(90deg, #3b82f6, #60a5fa);
+      border-radius: 9999px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="film-grain"></div>
+
+  <!-- FLOATING DETACHED HEADER -->
+  <header class="header-wrapper">
+    <div class="brand-island">
+      <div class="brand-icon-box">
+        <img src="icons/REDSTONE_BLOCK.png" alt="Logo">
+      </div>
+      <div class="brand-meta">
+        <h1>
+          KingMC Supreme Watcher
+          <span class="eyebrow-pill">2 IP RENDER</span>
+        </h1>
+        <div style="font-size: 10.5px; color: var(--text-dim);">Impeccable Agency Benchmark • Tr0ngX</div>
+      </div>
+    </div>
+
+    <div class="center-island">
+      <div class="url-field">
+        <i class="ph ph-globe"></i>
+        <input type="text" id="serverUrlInput" value="http://localhost:3000" placeholder="Master Render URL">
+      </div>
+
+      <div class="status-orb">
+        <div class="orb-dot"></div>
+        <span id="systemStatusText">OPERATIONAL</span>
+      </div>
+
+      <div class="action-display">
+        <i class="ph ph-arrows-clockwise" style="color: #60a5fa;"></i>
+        <span>Hành động: <strong id="currentActionText">Khởi tạo hệ thống...</strong></span>
+      </div>
+    </div>
+
+    <div style="display: flex; gap: 10px;">
+      <button class="island-btn" onclick="window.chrome.webview.postMessage({ action: 'test_toast' })" style="background: rgba(255,255,255,0.06); box-shadow: none;">
+        <span>Test Toast</span>
+        <div class="btn-inner-orb"><i class="ph ph-bell"></i></div>
+      </button>
+      <button class="island-btn" onclick="window.chrome.webview.postMessage({ action: 'recheck_now' })">
+        <span>Quét Player Ngay</span>
+        <div class="btn-inner-orb"><i class="ph ph-lightning"></i></div>
+      </button>
+    </div>
+  </header>
+
+  <!-- APP VIEWPORT -->
+  <div class="app-viewport">
+
+    <!-- DOUBLE-BEZEL SIDEBAR -->
+    <aside class="sidebar-shell">
+      <div class="sidebar-core">
+        <div class="section-eyebrow">Trọng Tâm Giám Sát</div>
+        <div class="nav-pill active" onclick="switchView('players')" id="nav-players">
+          <i class="ph ph-users" style="font-size: 16px;"></i>
+          <span>Người Chơi (10m)</span>
+        </div>
+        <div class="nav-pill" onclick="switchView('orders')" id="nav-orders">
+          <i class="ph ph-shopping-bag-open" style="font-size: 16px;"></i>
+          <span>Đơn Hàng (Order)</span>
+        </div>
+        <div class="nav-pill" onclick="switchView('chart')" id="nav-chart">
+          <i class="ph ph-chart-line-up" style="font-size: 16px;"></i>
+          <span>Biểu Đồ Số Dư</span>
+        </div>
+        <div class="nav-pill" onclick="switchView('logs')" id="nav-logs">
+          <i class="ph ph-terminal" style="font-size: 16px;"></i>
+          <span>Nhật Ký (Logs)</span>
+        </div>
+
+        <div class="section-eyebrow" style="margin-top: 14px;">Mặt Hàng Chợ Order</div>
+        <div class="nav-pill" onclick="selectOrderItem('tnt')">
+          <img src="icons/TNT.png" alt="TNT">
+          <span>TNT</span>
+        </div>
+        <div class="nav-pill" onclick="selectOrderItem('sand')">
+          <img src="icons/SAND.png" alt="Sand">
+          <span>Cát (Sand)</span>
+        </div>
+        <div class="nav-pill" onclick="selectOrderItem('gunpowder')">
+          <img src="icons/GUNPOWDER.png" alt="Gunpowder">
+          <span>Thuốc súng</span>
+        </div>
+        <div class="nav-pill" onclick="selectOrderItem('bone')">
+          <img src="icons/BONE.png" alt="Bone">
+          <span>Xương (Bone)</span>
+        </div>
+        <div class="nav-pill" onclick="selectOrderItem('bone_block')">
+          <img src="icons/BONE_BLOCK.png" alt="Bone Block">
+          <span>Khối xương</span>
+        </div>
+        <div class="nav-pill" onclick="selectOrderItem('kelp')">
+          <img src="icons/KELP.png" alt="Kelp">
+          <span>Tảo biển (Kelp)</span>
+        </div>
+        <div class="nav-pill" onclick="selectOrderItem('dried_kelp')">
+          <img src="icons/DRIED_KELP.png" alt="Dried Kelp">
+          <span>Tảo biển khô</span>
+        </div>
+        <div class="nav-pill" onclick="selectOrderItem('dried_kelp_block')">
+          <img src="icons/DRIED_KELP_BLOCK.png" alt="Dried Kelp Block">
+          <span>Khối tảo khô</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- DOUBLE-BEZEL CONTENT STAGE -->
+    <main class="stage-shell">
+      <div class="stage-core">
+
+        <!-- VIEW 1: PLAYERS -->
+        <section id="view-players">
+          <div class="bento-card">
+            <div class="bento-header">
+              <div class="bento-title">
+                <i class="ph ph-shield-check" style="color: #60a5fa; font-size: 18px;"></i>
+                Danh Sách Người Chơi (Recheck Ưu Tiên 1 Mỗi 10 Phút)
+              </div>
+              <div style="display: flex; gap: 8px;">
+                <input type="text" id="addPlayerInput" placeholder="Nhập tên Minecraft..." style="background: rgba(0,0,0,0.4); border: 1px solid var(--hairline-border); color: white; padding: 6px 12px; border-radius: 9999px; font-size: 12px; outline: none;">
+                <button class="island-btn" onclick="handleAddPlayer()" style="padding: 5px 12px;">+ Thêm</button>
+              </div>
+            </div>
+
+            <div class="players-grid" id="playersGrid"></div>
+          </div>
+        </section>
+
+        <!-- VIEW 2: ORDERS -->
+        <section id="view-orders" style="display: none;">
+          <div class="bento-card">
+            <div class="bento-header">
+              <div class="bento-title">
+                <i class="ph ph-stack" style="color: #34d399; font-size: 18px;"></i>
+                Thị Trường Đơn Hàng (Quét Ưu Tiên 2 Tuần Tự Liên Tục Khi Rảnh)
+              </div>
+            </div>
+
+            <!-- Item selection pills -->
+            <div class="item-carousel-bar">
+              <button class="item-pill-btn active" onclick="switchItemSubTab('redstone_block')">
+                <img src="icons/REDSTONE_BLOCK.png" alt="Redstone Block"> Redstone Block
+              </button>
+              <button class="item-pill-btn" onclick="switchItemSubTab('redstone')">
+                <img src="icons/REDSTONE.png" alt="Redstone"> Redstone Dust
+              </button>
+              <button class="item-pill-btn" onclick="switchItemSubTab('tnt')">
+                <img src="icons/TNT.png" alt="TNT"> TNT
+              </button>
+              <button class="item-pill-btn" onclick="switchItemSubTab('sand')">
+                <img src="icons/SAND.png" alt="Sand"> Cát (Sand)
+              </button>
+              <button class="item-pill-btn" onclick="switchItemSubTab('gunpowder')">
+                <img src="icons/GUNPOWDER.png" alt="Gunpowder"> Thuốc súng
+              </button>
+              <button class="item-pill-btn" onclick="switchItemSubTab('bone')">
+                <img src="icons/BONE.png" alt="Bone"> Xương
+              </button>
+              <button class="item-pill-btn" onclick="switchItemSubTab('bone_block')">
+                <img src="icons/BONE_BLOCK.png" alt="Bone Block"> Khối xương
+              </button>
+              <button class="item-pill-btn" onclick="switchItemSubTab('kelp')">
+                <img src="icons/KELP.png" alt="Kelp"> Kelp
+              </button>
+              <button class="item-pill-btn" onclick="switchItemSubTab('dried_kelp')">
+                <img src="icons/DRIED_KELP.png" alt="Dried Kelp"> Dried Kelp
+              </button>
+              <button class="item-pill-btn" onclick="switchItemSubTab('dried_kelp_block')">
+                <img src="icons/DRIED_KELP_BLOCK.png" alt="Dried Kelp Block"> Dried Kelp Block
+              </button>
+            </div>
+
+            <div class="table-shell" style="margin-top: 14px;">
+              <table class="luxe-table">
+                <thead>
+                  <tr>
+                    <th>Người Mua</th>
+                    <th>Giá Mỗi Item</th>
+                    <th>Tiến Độ Đã Giao</th>
+                    <th>Số Lượng Cần</th>
+                    <th>Còn Lại</th>
+                  </tr>
+                </thead>
+                <tbody id="ordersTableBody">
+                  <tr><td colspan="5" style="text-align: center; color: var(--text-dim); padding: 36px;">Đang đợi chu kỳ quét tuần tự...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- VIEW 3: CHART -->
+        <section id="view-chart" style="display: none;">
+          <div class="bento-card">
+            <div class="bento-header">
+              <div class="bento-title">
+                <i class="ph ph-trend-up" style="color: #60a5fa; font-size: 18px;"></i>
+                Biểu Đồ Biến Động Số Dư (OLED Dark Mode • Smooth Bezier)
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 11.5px; color: var(--text-sub);">Tài khoản:</span>
+                <select id="chartPlayerSelect" onchange="renderChartForSelectedPlayer()" style="background: rgba(0,0,0,0.5); border: 1px solid var(--hairline-border); color: white; padding: 5px 12px; border-radius: 9999px; font-size: 12px; outline: none;"></select>
+              </div>
+            </div>
+            <div style="height: 340px; position: relative;">
+              <canvas id="balanceChartCanvas"></canvas>
+            </div>
+          </div>
+        </section>
+
+        <!-- VIEW 4: LOGS -->
+        <section id="view-logs" style="display: none;">
+          <div class="bento-card">
+            <div class="bento-header">
+              <div class="bento-title">
+                <i class="ph ph-terminal-window" style="color: #a78bfa; font-size: 18px;"></i>
+                Hệ Thống Nhật Ký Console (Real-time Stream)
+              </div>
+              <button class="island-btn" onclick="clearLogs()" style="padding: 4px 10px; font-size: 11px;">Xóa log</button>
+            </div>
+            <div id="logsContainer" style="background: rgba(0, 0, 0, 0.45); border: 1px solid var(--hairline-border); border-radius: 12px; padding: 14px; font-family: var(--font-mono); font-size: 11.5px; color: #cbd5e1; height: 460px; overflow-y: auto; line-height: 1.7;"></div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <script>
+    let currentView = 'players';
+    let currentSubItem = 'redstone_block';
+    let globalData = { players: {}, orders: {}, serverUrl: 'http://localhost:3000', actionText: 'Sẵn sàng' };
+    let chartInstance = null;
+
+    function safePostMessage(msg) {
+      try {
+        if (window.chrome && window.chrome.webview && typeof window.chrome.webview.postMessage === 'function') {
+          window.chrome.webview.postMessage(msg);
+        }
+      } catch (err) {
+        console.warn('postMessage error:', err);
+      }
+    }
+
+    const serverUrlInput = document.getElementById('serverUrlInput');
+    if (serverUrlInput) {
+      serverUrlInput.addEventListener('change', (e) => {
+        safePostMessage({ action: 'set_server_url', value: (e.target.value || '').trim() });
+      });
+    }
+
+    function switchView(viewName) {
+      try {
+        currentView = viewName;
+        document.querySelectorAll('.nav-pill').forEach(el => el.classList.remove('active'));
+        const activeNav = document.getElementById(`nav-${viewName}`);
+        if (activeNav) activeNav.classList.add('active');
+
+        const vp = document.getElementById('view-players');
+        const vo = document.getElementById('view-orders');
+        const vc = document.getElementById('view-chart');
+        const vl = document.getElementById('view-logs');
+
+        if (vp) vp.style.display = viewName === 'players' ? 'block' : 'none';
+        if (vo) vo.style.display = viewName === 'orders' ? 'block' : 'none';
+        if (vc) vc.style.display = viewName === 'chart' ? 'block' : 'none';
+        if (vl) vl.style.display = viewName === 'logs' ? 'block' : 'none';
+
+        if (viewName === 'chart') renderChartForSelectedPlayer();
+        if (viewName === 'orders') renderOrdersTable();
+      } catch (e) {
+        console.error('switchView error:', e);
+      }
+    }
+
+    function selectOrderItem(itemKey) {
+      try {
+        switchView('orders');
+        switchItemSubTab(itemKey);
+      } catch (e) {
+        console.error('selectOrderItem error:', e);
+      }
+    }
+
+    function switchItemSubTab(itemKey) {
+      try {
+        currentSubItem = itemKey;
+        document.querySelectorAll('.item-pill-btn').forEach(b => b.classList.remove('active'));
+        const activeBtn = Array.from(document.querySelectorAll('.item-pill-btn')).find(b => b.getAttribute('onclick')?.includes(itemKey));
+        if (activeBtn) activeBtn.classList.add('active');
+        renderOrdersTable();
+      } catch (e) {
+        console.error('switchItemSubTab error:', e);
+      }
+    }
+
+    function handleAddPlayer() {
+      try {
+        const input = document.getElementById('addPlayerInput');
+        if (!input) return;
+        const val = input.value.trim();
+        if (!val) return;
+        safePostMessage({ action: 'add_player', name: val });
+        input.value = '';
+      } catch (e) {
+        console.error('handleAddPlayer error:', e);
+      }
+    }
+
+    function handleRemovePlayer(name) {
+      try {
+        safePostMessage({ action: 'remove_player', name });
+      } catch (e) {
+        console.error('handleRemovePlayer error:', e);
+      }
+    }
+
+    window.updateFrontendData = function(payloadJson) {
+      try {
+        const data = typeof payloadJson === 'string' ? JSON.parse(payloadJson) : payloadJson;
+        if (!data) return;
+        globalData = data;
+
+        const urlEl = document.getElementById('serverUrlInput');
+        if (urlEl && data.serverUrl) urlEl.value = data.serverUrl;
+
+        const actEl = document.getElementById('currentActionText');
+        if (actEl && data.actionText) actEl.innerText = data.actionText;
+
+        renderPlayersGrid();
+        renderOrdersTable();
+        updateChartDropdown();
+      } catch (err) {
+        console.error('Lỗi sync frontend:', err);
+      }
+    };
+
+    window.appendLog = function(msg) {
+      try {
+        const box = document.getElementById('logsContainer');
+        if (!box) return;
+        const time = new Date().toLocaleTimeString();
+        const div = document.createElement('div');
+        div.innerHTML = `<span style="color: #64748b;">[${time}]</span> ${msg}`;
+        box.appendChild(div);
+        box.scrollTop = box.scrollHeight;
+      } catch (e) {
+        console.error('appendLog error:', e);
+      }
+    };
+
+    function clearLogs() {
+      try {
+        const box = document.getElementById('logsContainer');
+        if (box) box.innerHTML = '';
+      } catch (e) {}
+    }
+
+    function renderPlayersGrid() {
+      const grid = document.getElementById('playersGrid');
+      grid.innerHTML = '';
+      const players = globalData.players || {};
+
+      for (const [name, state] of Object.entries(players)) {
+        const shell = document.createElement('div');
+        shell.className = 'player-card-shell';
+
+        const avatarUrl = state.avatarUrl || `https://mc-heads.net/avatar/${encodeURIComponent(name)}/64`;
+        const isOnline = !!state.isOnline;
+        const bal = state.balance || 'N/A';
+        const updated = state.lastChecked ? new Date(state.lastChecked).toLocaleTimeString() : 'Chưa cập nhật';
+
+        shell.innerHTML = `
+          <div class="player-card-inner">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <div class="player-avatar-box">
+                  <img src="${avatarUrl}" alt="${name}" onerror="this.src='https://mc-heads.net/avatar/MHF_Steve/64'">
+                </div>
+                <div>
+                  <div style="font-size: 14.5px; font-weight: 700; color: white;">${name}</div>
+                  <div class="badge-chip ${isOnline ? 'online' : 'offline'}" style="margin-top: 3px;">
+                    <div style="width: 5px; height: 5px; border-radius: 50%; background: ${isOnline ? '#34d399' : '#f43f5e'};"></div>
+                    ${isOnline ? 'ONLINE' : 'OFFLINE'}
+                  </div>
+                </div>
+              </div>
+              <button onclick="handleRemovePlayer('${name}')" style="background: transparent; border: none; color: #f43f5e; cursor: pointer; padding: 4px; font-size: 13px;">
+                <i class="ph ph-trash"></i>
+              </button>
+            </div>
+
+            <div style="margin-top: 6px;">
+              <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: var(--text-dim); letter-spacing: 0.08em;">Số dư tài khoản</div>
+              <div class="balance-headline">${bal}</div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 8px; font-size: 11px; color: var(--text-dim);">
+              <span>Ping: <strong style="color: #94a3b8;">${state.ping || 'N/A'}</strong></span>
+              <span>Cập nhật: ${updated}</span>
+            </div>
+          </div>
+        `;
+        grid.appendChild(shell);
+      }
+    }
+
+    function renderOrdersTable() {
+      const tbody = document.getElementById('ordersTableBody');
+      const list = (globalData.orders && globalData.orders[currentSubItem]) || [];
+
+      if (!list || list.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-dim); padding: 36px;">Không có đơn hàng nào cho mục này hoặc đang chờ lượt quét...</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = '';
+      for (const item of list) {
+        const buyer = item.buyer || 'Ẩn danh';
+        const price = item.price || 'N/A';
+        const delivered = item.delivered || '0/0';
+        const qty = item.quantity || 'N/A';
+        const remaining = item.remaining || 'N/A';
+
+        let percent = 0;
+        if (delivered.includes('/')) {
+          const p = delivered.split('/');
+          const d = parseFloat(p[0].replace(/,/g, ''));
+          const t = parseFloat(p[1].replace(/,/g, ''));
+          if (!isNaN(d) && !isNaN(t) && t > 0) percent = Math.min(100, Math.round((d / t) * 100));
+        }
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong>${buyer}</strong></td>
+          <td><span class="price-text">${price}</span></td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span>${delivered}</span>
+              <div class="bar-outer"><div class="bar-inner" style="width: ${percent}%;"></div></div>
+              <span style="font-size: 10.5px; color: var(--text-dim);">${percent}%</span>
+            </div>
+          </td>
+          <td>${qty}</td>
+          <td><strong style="color: #60a5fa;">${remaining}</strong></td>
+        `;
+        tbody.appendChild(tr);
+      }
+    }
+
+    function updateChartDropdown() {
+      const select = document.getElementById('chartPlayerSelect');
+      const currentVal = select.value;
+      select.innerHTML = '';
+      const players = Object.keys(globalData.players || {});
+      players.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p;
+        opt.innerText = p;
+        select.appendChild(opt);
+      });
+      if (currentVal && players.includes(currentVal)) select.value = currentVal;
+      else if (players.length > 0) select.value = players[0];
+    }
+
+    function renderChartForSelectedPlayer() {
+      const select = document.getElementById('chartPlayerSelect');
+      const playerName = select.value;
+      if (!playerName || !globalData.players || !globalData.players[playerName]) return;
+
+      const state = globalData.players[playerName];
+      const history = state.history || [];
+
+      const ctx = document.getElementById('balanceChartCanvas').getContext('2d');
+      if (chartInstance) chartInstance.destroy();
+
+      if (history.length < 2) {
+        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        return;
+      }
+
+      const labels = history.map(h => h.time ? new Date(h.time).toLocaleTimeString() : '');
+      const values = history.map(h => h.value);
+
+      const gradient = ctx.createLinearGradient(0, 0, 0, 320);
+      gradient.addColorStop(0, 'rgba(59, 130, 246, 0.4)');
+      gradient.addColorStop(1, 'rgba(59, 130, 246, 0.0)');
+
+      chartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: `Số dư $ (${playerName})`,
+            data: values,
+            borderColor: '#3b82f6',
+            borderWidth: 2.5,
+            pointBackgroundColor: '#60a5fa',
+            pointBorderColor: '#ffffff',
+            pointRadius: 4,
+            pointHoverRadius: 6,
+            fill: true,
+            backgroundColor: gradient,
+            tension: 0.35
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: 'rgba(15, 23, 42, 0.95)',
+              titleColor: '#f9fafb',
+              bodyColor: '#93c5fd',
+              borderColor: 'rgba(255, 255, 255, 0.1)',
+              borderWidth: 1,
+              padding: 10,
+              callbacks: {
+                label: (ctx) => `$${ctx.parsed.y.toLocaleString()}`
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { color: 'rgba(255, 255, 255, 0.04)' },
+              ticks: { color: '#94a3b8', font: { family: 'JetBrains Mono', size: 10 } }
+            },
+            y: {
+              grid: { color: 'rgba(255, 255, 255, 0.04)' },
+              ticks: {
+                color: '#94a3b8',
+                font: { family: 'JetBrains Mono', size: 10 },
+                callback: (val) => `$${val.toLocaleString()}`
+              }
+            }
+          }
+        }
+      });
+    }
+  </script>
+</body>
+</html>

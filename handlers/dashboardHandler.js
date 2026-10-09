@@ -128,6 +128,110 @@ async function handleDashboardRequest(req, res, context) {
   }
 
   // ==========================================
+  // PUBLIC API ROUTES DÀNH CHO DESKTOP APP NOTIFIER (Không cần Auth)
+  // ==========================================
+  // 1. Lấy dữ liệu Redstone Order
+  if (pathname === '/api/orders/redstone' && method === 'GET') {
+    try {
+      const BOT_CHECK_TIMEOUT = parseInt(process.env.BOT_CHECK_TIMEOUT) || 15000;
+      
+      const pBlock = queueDispatcher ? queueDispatcher.enqueueTask('order', 'redstone_block', BOT_CHECK_TIMEOUT).catch(err => ({ success: false, error: err.message, orders: [] })) : Promise.resolve({ orders: [] });
+      const pDust = queueDispatcher ? queueDispatcher.enqueueTask('order', 'redstone', BOT_CHECK_TIMEOUT).catch(err => ({ success: false, error: err.message, orders: [] })) : Promise.resolve({ orders: [] });
+
+      const [resBlock, resDust] = await Promise.all([pBlock, pDust]);
+
+      return sendJson(res, 200, {
+        success: true,
+        timestamp: new Date().toISOString(),
+        redstoneBlock: {
+          orders: resBlock.orders || [],
+          serverUsed: resBlock.serverUsed || 'N/A',
+          error: resBlock.error || null
+        },
+        redstoneDust: {
+          orders: resDust.orders || [],
+          serverUsed: resDust.serverUsed || 'N/A',
+          error: resDust.error || null
+        }
+      });
+    } catch (err) {
+      return sendJson(res, 500, { success: false, error: err.message });
+    }
+  }
+
+  // 2. Lấy đơn hàng theo item tuỳ chọn: GET /api/orders/item?name=tnt
+  if (pathname === '/api/orders/item' && method === 'GET') {
+    try {
+      const itemName = (parsedUrl.searchParams.get('name') || '').trim();
+      if (!itemName) {
+        return sendJson(res, 400, { success: false, error: 'Thiếu tham số name (ví dụ: ?name=tnt)' });
+      }
+      const BOT_CHECK_TIMEOUT = parseInt(process.env.BOT_CHECK_TIMEOUT) || 15000;
+      const resOrder = queueDispatcher ? await queueDispatcher.enqueueTask('order', itemName, BOT_CHECK_TIMEOUT).catch(err => ({ success: false, error: err.message, orders: [] })) : { orders: [] };
+
+      return sendJson(res, 200, {
+        success: true,
+        item: itemName,
+        orders: resOrder.orders || [],
+        serverUsed: resOrder.serverUsed || 'N/A',
+        error: resOrder.error || null,
+        timestamp: new Date().toISOString()
+      });
+    } catch (err) {
+      return sendJson(res, 500, { success: false, error: err.message });
+    }
+  }
+
+  // 3. Kiểm tra số dư + trạng thái online + avatar của người chơi: GET /api/player/check?name=Tr0ngX
+  if (pathname === '/api/player/check' && method === 'GET') {
+    try {
+      const playerName = (parsedUrl.searchParams.get('name') || '').trim();
+      if (!playerName) {
+        return sendJson(res, 400, { success: false, error: 'Thiếu tham số name' });
+      }
+
+      const skinHelper = require('../helpers/skinHelper');
+      const avatarUrl = skinHelper.getAvatarUrl(playerName, 64, true);
+
+      const BOT_CHECK_TIMEOUT = parseInt(process.env.BOT_CHECK_TIMEOUT) || 15000;
+      
+      // Chạy lấy số dư (bal) và trạng thái online song song
+      const pBal = queueDispatcher ? queueDispatcher.enqueueTask('bal', playerName, BOT_CHECK_TIMEOUT).catch(err => ({ success: false, error: err.message })) : Promise.resolve(null);
+      const pOnline = queueDispatcher ? queueDispatcher.enqueueTask('online', playerName, BOT_CHECK_TIMEOUT).catch(err => ({ success: false, error: err.message })) : Promise.resolve(null);
+
+      const [resBal, resOnline] = await Promise.all([pBal, pOnline]);
+
+      let balStr = 'N/A';
+      if (resBal) {
+        const rawBal = resBal.balance || resBal;
+        balStr = typeof rawBal === 'object' && rawBal.balance ? rawBal.balance : String(rawBal || 'N/A');
+        if (balStr.includes('$')) {
+          balStr = balStr.substring(balStr.indexOf('$')).trim();
+        }
+      }
+
+      const isOnline = !!(resOnline && resOnline.online);
+      const onlineMsg = resOnline ? (resOnline.message || (isOnline ? 'Đang online' : 'Offline')) : 'N/A';
+      const ping = resOnline?.ping || 'N/A';
+      const world = resOnline?.world || 'N/A';
+
+      return sendJson(res, 200, {
+        success: true,
+        player: playerName,
+        avatarUrl,
+        balance: balStr,
+        isOnline,
+        onlineMessage: onlineMsg,
+        ping,
+        world,
+        timestamp: new Date().toISOString()
+      });
+    } catch (err) {
+      return sendJson(res, 500, { success: false, error: err.message });
+    }
+  }
+
+  // ==========================================
   // 1. AUTH API ROUTES
   // ==========================================
   if (pathname === '/api/auth/login' && method === 'POST') {

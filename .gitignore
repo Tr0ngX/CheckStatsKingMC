@@ -10,3 +10,10 @@ data/*
 .vscode/
 config/render_accounts.json
 config/*.local.json
+
+# .NET & Desktop App Build Artifacts
+apps/**/bin/
+apps/**/obj/
+dist/
+.agents/
+skills-lock.json

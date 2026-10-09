@@ -207,57 +207,63 @@ namespace RedstoneOrderNotifier
             {
                 // Thư mục dữ liệu độc lập cho WebView2 tránh xung đột cache
                 var userDataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "KingMCMonitor_WebView2");
-                Directory.CreateDirectory(userDataFolder);
-
-                // Cờ tham số Chromium chuẩn công nghiệp: Tắt hoàn toàn GPU hardware acceleration và sandbox, chống crash GPU render gây màn hình đen sau vài giây
+                // Cờ tham số Chromium chuẩn công nghiệp:
+                // 1. Chống background throttling & occlusion (nguyên nhân khiến WebView2 đóng băng / màn hình đen sau vài giây khi cửa sổ bị overlap hoặc background)
+                // 2. Chế độ phần mềm software rasterizer & tắt hardware acceleration gây crash Direct3D context
                 var options = new CoreWebView2EnvironmentOptions(
-                    "--disable-gpu --disable-gpu-compositing --disable-gpu-rasterization --disable-gpu-sandbox --disable-software-rasterizer=false --disable-features=CalculateNativeWinOcclusion,SpareRendererForSitePerProcess,GpuProcessHighPriority --disable-accelerated-2d-canvas"
+                    "--disable-gpu --disable-gpu-compositing --disable-gpu-rasterization --disable-gpu-sandbox --disable-software-rasterizer=false " +
+                    "--disable-features=CalculateNativeWinOcclusion,SpareRendererForSitePerProcess,GpuProcessHighPriority,WidgetLayering " +
+                    "--disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-renderer-backgrounding " +
+                    "--allow-file-access-from-files"
                 );
 
                 var env = await CoreWebView2Environment.CreateAsync(null, userDataFolder, options);
                 await _webView.EnsureCoreWebView2Async(env);
 
-                // Thiết lập màu nền mặc định tối cùng màu ứng dụng thay vì màu trắng/đen trống
+                // Thiết lập màu nền mặc định tối cùng màu ứng dụng
                 _webView.DefaultBackgroundColor = System.Drawing.Color.FromArgb(2, 4, 10);
 
                 _webView.CoreWebView2.WebMessageReceived += OnWebMessageReceived;
                 _webView.CoreWebView2.Settings.IsStatusBarEnabled = false;
-                _webView.CoreWebView2.Settings.AreDevToolsEnabled = true; // Bật DevTools để debug nếu cần
+                _webView.CoreWebView2.Settings.AreDevToolsEnabled = true;
                 _webView.CoreWebView2.Settings.IsSwipeNavigationEnabled = false;
 
-                // Tự động hồi phục (Auto Recovery) khi GPU process hoặc Render process bị sập (nguyên nhân gây màn hình đen)
+                // Ánh xạ thư mục UI sang Virtual Host Domain ảo (app.kingmc.local)
+                // Điều này giúp trình duyệt chạy ở chế độ HTTP an toàn chuẩn Web Security,
+                // nạp 100% hình ảnh icon, CSS, script và canvas mà không bị trình duyệt chặn file:// protocol hoặc GPU context loss
+                var uiFolder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "UI");
+                if (Directory.Exists(uiFolder))
+                {
+                    _webView.CoreWebView2.SetVirtualHostNameToFolderMapping(
+                        "app.kingmc.local",
+                        uiFolder,
+                        CoreWebView2HostResourceAccessKind.Allow
+                    );
+                    _webView.CoreWebView2.Navigate("https://app.kingmc.local/index.html");
+                }
+                else
+                {
+                    var uiPath = Path.Combine(uiFolder, "index.html");
+                    if (File.Exists(uiPath))
+                    {
+                        _webView.CoreWebView2.Navigate(new Uri(uiPath).AbsoluteUri);
+                    }
+                    else
+                    {
+                        _webView.CoreWebView2.NavigateToString("<h2 style='color:white;font-family:sans-serif;'>Đang chuẩn bị giao diện...</h2>");
+                    }
+                }
+
+                // Tự động hồi phục khi GPU process hoặc Render process bị sập
                 _webView.CoreWebView2.ProcessFailed += (s, e) =>
                 {
                     AppendLog($"⚠️ Phát hiện WebView2 ProcessFailed ({e.ProcessFailedKind} - {e.Reason}). Đang tự động khôi phục giao diện...");
                     try
                     {
-                        if (e.ProcessFailedKind == CoreWebView2ProcessFailedKind.GpuProcessExited)
-                        {
-                            // GPU process tự hồi phục sau reload
-                            _webView.Reload();
-                        }
-                        else
-                        {
-                            var currentUiPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "UI", "index.html");
-                            if (File.Exists(currentUiPath))
-                            {
-                                _webView.CoreWebView2.Navigate(new Uri(currentUiPath).AbsoluteUri);
-                            }
-                        }
+                        _webView.CoreWebView2.Navigate("https://app.kingmc.local/index.html");
                     }
                     catch { }
                 };
-
-                // Load UI HTML
-                var uiPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "UI", "index.html");
-                if (File.Exists(uiPath))
-                {
-                    _webView.CoreWebView2.Navigate(new Uri(uiPath).AbsoluteUri);
-                }
-                else
-                {
-                    _webView.CoreWebView2.NavigateToString("<h2>Đang chuẩn bị giao diện...</h2>");
-                }
 
                 _webView.NavigationCompleted += (s, e) =>
                 {
